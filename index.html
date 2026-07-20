@@ -1463,22 +1463,41 @@
 
   function initAudio() {
     const music = document.getElementById("bgMusic");
-    const btn = document.getElementById("musicToggle");
-    const icon = document.getElementById("musicIcon");
+    const musicBtn = document.getElementById("musicToggle");
+    const musicIcon = document.getElementById("musicIcon");
 
-    if (!music || !btn) return;
+    if (!music) return;
 
-    btn.addEventListener("click", async () => {
+    music.volume = 0.5;
+
+    let isPlaying = false;
+
+    function playMusic() {
+        music.play().then(() => {
+            isPlaying = true;
+            musicIcon.textContent = "🔊";
+        }).catch(err => console.log(err));
+
+        document.removeEventListener("click", playMusic);
+        document.removeEventListener("touchstart", playMusic);
+    }
+
+    // Start music on the first click anywhere
+    document.addEventListener("click", playMusic);
+    document.addEventListener("touchstart", playMusic);
+
+    // Music button toggle
+    musicBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+
         if (music.paused) {
-            try {
-                await music.play();
-                icon.textContent = "🔊";
-            } catch (e) {
-                console.log(e);
-            }
+            music.play();
+            musicIcon.textContent = "🔊";
+            isPlaying = true;
         } else {
             music.pause();
-            icon.textContent = "🎵";
+            musicIcon.textContent = "🔇";
+            isPlaying = false;
         }
     });
 }
@@ -1591,7 +1610,7 @@
 
 })();
 </script>
-  <audio id="bgMusic" loop>
+  <audio id="bgMusic" loop preload="auto">
     <source src="music/musiccc.mp3" type="audio/mpeg">
 </audio>
 </body>
